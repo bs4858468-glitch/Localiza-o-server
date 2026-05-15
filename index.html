@@ -1,34 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Meu Mapa GPS</title>
+    <title>Meu Mapa GPS - Teste</title>
     <style>
-        body { font-family: Arial; text-align: center; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9; }
         #mapa {
             width: 100%;
+            max-width: 800px;
             height: 400px;
-            background-color: #eee;
-            margin-top: 20px;
-            border-radius: 10px;
+            background-color: #ddd;
+            margin: 20px auto;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         button {
-            padding: 15px 25px;
+            padding: 15px 30px;
             font-size: 18px;
-            background-color: #28a745;
+            background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: background 0.3s;
         }
+        button:hover { background-color: #0056b3; }
+        #status { font-weight: bold; color: #555; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <h2>📍 Localização em Tempo Real</h2>
-    <button onclick="verMapa()">Mostrar meu lugar no mapa</button>
+    <h2>📍 Teste de Localização em Tempo Real</h2>
+    <button onclick="verMapa()">Onde eu estou?</button>
     
-    <p id="status"></p>
+    <p id="status">Clique no botão para iniciar.</p>
     
     <div id="mapa">O mapa aparecerá aqui...</div>
 
@@ -37,31 +45,38 @@
             const status = document.getElementById("status");
             const mapaDiv = document.getElementById("mapa");
 
-            status.innerText = "Buscando satélites...";
+            status.innerText = "Solicitando permissão/Buscando coordenadas...";
 
             if (!navigator.geolocation) {
-                alert("Seu navegador não tem GPS");
+                status.innerText = "Erro: Seu navegador não suporta geolocalização.";
                 return;
             }
+
+            // Opções para maior precisão
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            };
 
             navigator.geolocation.getCurrentPosition(function(pos) {
                 const lat = pos.coords.latitude;
                 const lon = pos.coords.longitude;
 
-                status.innerText = `Localizado! Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`;
+                status.innerText = `Sucesso! Latitude: ${lat.toFixed(5)}, Longitude: ${lon.toFixed(5)}`;
 
-                // Criando o mapa usando o Google Maps (via iframe)
+                // URL correta para o embed do Google Maps
                 mapaDiv.innerHTML = `<iframe 
                     width="100%" 
                     height="100%" 
                     frameborder="0" 
-                    style="border:0; border-radius:10px;"
+                    style="border:0; border-radius:15px;"
                     src="https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed">
                 </iframe>`;
 
             }, function(error) {
-                alert("Erro: " + error.message);
-            });
+                status.innerText = "Erro ao obter localização: " + error.message;
+            }, options);
         }
     </script>
 </body>
