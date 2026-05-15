@@ -1,54 +1,33 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-  <meta charset="UTF-8">
-  <title>Teste GPS</title>
+<meta charset="UTF-8">
+<title>Teste GPS</title>
 </head>
-
 <body style="font-family:Arial; text-align:center; padding-top:80px;">
-  
-  <h2>📍 Teste de localização</h2>
-  
-  <button onclick="start()">Ativar localização</button>
-  
-  <p id="status"></p>
-  
-  <script>
-    function start() {
-      
-      document.getElementById("status").innerText = "Solicitando...";
-      
-      if (!navigator.geolocation) {
-        alert("Seu navegador não suporta GPS");
-        return;
-      }
-      
-      navigator.geolocation.getCurrentPosition(
-        function(pos) {
-          
-          alert(
-            "Latitude: " + pos.coords.latitude +
-            "\nLongitude: " + pos.coords.longitude
-          );
-          
-          window.location.href = "https://www.youtube.com/";
-          
-        },
-        function(error) {
-          
-          alert("Permissão negada ou erro: " + error.message);
-          
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000
-        }
-      );
-      
-    }
-  </script>
-  
-</body>
 
+<h2>📍 Teste de localização</h2>
+<button onclick="start()">Ativar localização</button>
+<p id="status"></p>
+
+<script>
+function start() {
+  document.getElementById("status").innerText = "Solicitando...";
+  if (!navigator.geolocation) {
+    alert("Seu navegador não suporta GPS");
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      alert("Latitude: " + pos.coords.latitude + "\nLongitude: " + pos.coords.longitude);
+      window.location.href = "https://www.youtube.com/";
+    },
+    function(error) {
+      alert("Permissão negada ou erro: " + error.message);
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+</script>
+</body>
 </html>
