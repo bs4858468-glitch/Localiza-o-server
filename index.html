@@ -2,81 +2,96 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Meu Mapa GPS - Teste</title>
+    <title>GPS de Alta Precisão</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9; }
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f0f2f5; }
         #mapa {
             width: 100%;
-            max-width: 800px;
-            height: 400px;
-            background-color: #ddd;
+            max-width: 900px;
+            height: 500px;
+            background-color: #ccc;
             margin: 20px auto;
             border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
         }
         button {
-            padding: 15px 30px;
-            font-size: 18px;
-            background-color: #007bff;
+            padding: 18px 30px;
+            font-size: 20px;
+            background-color: #0084ff;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background 0.3s;
+            font-weight: bold;
         }
-        button:hover { background-color: #0056b3; }
-        #status { font-weight: bold; color: #555; margin-top: 10px; }
+        button:active { transform: scale(0.98); }
+        #status { margin-top: 15px; font-size: 1.1em; color: #333; }
     </style>
 </head>
 <body>
 
-    <h2>📍 Teste de Localização em Tempo Real</h2>
-    <button onclick="verMapa()">Onde eu estou?</button>
+    <h2>📍 Localizador de Precisão Máxima</h2>
+    <p>Este teste usa GPS + Wi-Fi para achar o ponto exato.</p>
     
-    <p id="status">Clique no botão para iniciar.</p>
+    <button onclick="buscarLocalizacaoExata()">ACHAR MEU PONTO NO MAPA</button>
     
-    <div id="mapa">O mapa aparecerá aqui...</div>
+    <p id="status">Aguardando comando...</p>
+    
+    <div id="mapa">O mapa aparecerá aqui após a localização...</div>
 
     <script>
-        function verMapa() {
+        function buscarLocalizacaoExata() {
             const status = document.getElementById("status");
             const mapaDiv = document.getElementById("mapa");
 
-            status.innerText = "Solicitando permissão/Buscando coordenadas...";
+            status.innerText = "Conectando aos satélites e escaneando redes...";
 
             if (!navigator.geolocation) {
-                status.innerText = "Erro: Seu navegador não suporta geolocalização.";
+                status.innerText = "Erro: Seu aparelho não suporta GPS.";
                 return;
             }
 
-            // Opções para maior precisão
-            const options = {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
+            // CONFIGURAÇÕES DE ALTA PRECISÃO
+            const configuracoes = {
+                enableHighAccuracy: true, // O SEGREDO: Força o uso de GPS/Wi-Fi preciso
+                timeout: 15000,           // Espera até 15 segundos pelo sinal
+                maximumAge: 0             // Não usa localização antiga gravada no celular
             };
 
             navigator.geolocation.getCurrentPosition(function(pos) {
                 const lat = pos.coords.latitude;
                 const lon = pos.coords.longitude;
+                const precisao = pos.coords.accuracy; // Margem de erro em metros
 
-                status.innerText = `Sucesso! Latitude: ${lat.toFixed(5)}, Longitude: ${lon.toFixed(5)}`;
+                status.innerHTML = `<strong>Localizado!</strong><br> 
+                                   Precisão: dentro de ${precisao.toFixed(0)} metros.<br>
+                                   Lat: ${lat} | Lon: ${lon}`;
 
-                // URL correta para o embed do Google Maps
+                // Link do Google Maps com Zoom 18 (nível de rua/casa)
                 mapaDiv.innerHTML = `<iframe 
                     width="100%" 
                     height="100%" 
                     frameborder="0" 
                     style="border:0; border-radius:15px;"
-                    src="https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed">
+                    src="https://maps.google.com/maps?q=${lat},${lon}&z=18&output=embed">
                 </iframe>`;
 
             }, function(error) {
-                status.innerText = "Erro ao obter localização: " + error.message;
-            }, options);
+                // Tratamento de erros detalhado
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        status.innerText = "Erro: Você precisa permitir o acesso ao GPS.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        status.innerText = "Erro: Sinal de GPS indisponível no momento.";
+                        break;
+                    case error.TIMEOUT:
+                        status.innerText = "Erro: Demorou demais para encontrar o sinal.";
+                        break;
+                    default:
+                        status.innerText = "Erro desconhecido: " + error.message;
+                }
+            }, configuracoes);
         }
     </script>
 </body>
